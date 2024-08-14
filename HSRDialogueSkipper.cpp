@@ -89,7 +89,8 @@ int main() {
 
 NOTIFYICONDATAA &loadTrayIcon() {
 
-    // Don't know how to make a right-click context menu for exiting the program
+    // load system tray icon
+    // how to make a right-click context menu for exiting the program?
     static NOTIFYICONDATAA nid = {};
     AllocConsole();
     HWND dsHandle = FindWindowA("ConsoleWindowClass", NULL);
