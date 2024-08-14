@@ -4,6 +4,7 @@ Issues:
 
 - HSR anticheat blocks GetForegroundWindow() when focused
 - HSR anticheat blocks GetKeyState() and GetAsyncKeyState() when focused
+    - how does autohotkey do it??????
 - Need to add right click close menu in system tray
 
 */
