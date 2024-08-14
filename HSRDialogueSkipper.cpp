@@ -68,9 +68,9 @@ int main() {
 
             if (toggled) {
 
-                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+                mouse_event(MOUSEEVENTF_LEFTDOWN, PIXEL_X, PIXEL_Y, 0, 0);
 	            std::this_thread::sleep_for(std::chrono::milliseconds(30));
-	            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+	            mouse_event(MOUSEEVENTF_LEFTUP, PIXEL_X, PIXEL_Y, 0, 0);
 
             }
 
