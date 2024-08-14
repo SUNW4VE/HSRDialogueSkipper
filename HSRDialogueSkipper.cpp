@@ -48,7 +48,7 @@ int main() {
 
         if (GetForegroundWindow() == gameHandle) {
             
-            std::cout << "Focused. ";
+            std::cout << "Focused. "; // debug
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (GetKeyState('Y') & 0x8000) {
                 
