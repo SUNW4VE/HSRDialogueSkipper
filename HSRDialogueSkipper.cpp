@@ -105,6 +105,8 @@ int main() {
 
 
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+
+    // flag manipulation
     if (nCode >= 0) {
         // Check for keypress
         if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
