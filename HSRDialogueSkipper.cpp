@@ -2,8 +2,8 @@
 
 Issues:
 
-- HSR anticheat blocks GetForegroundWindow() when focused
-- HSR anticheat blocks GetKeyState() and GetAsyncKeyState() when focused
+- HSR anticheat blocks GetForegroundWindow() 
+- HSR anticheat blocks GetKeyState() and GetAsyncKeyState() 
 - Low level hooks busted the toggle logic
 
 */
