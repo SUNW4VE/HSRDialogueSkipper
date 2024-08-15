@@ -2,9 +2,9 @@
 
 Issues:
 
-- HSR anticheat blocks GetForegroundWindow() 
-- HSR anticheat blocks GetKeyState() and GetAsyncKeyState() 
-- Hook implementation busted the toggle logic
+- HSR anticheat blocks GetForegroundWindow() when focused
+- HSR anticheat blocks GetKeyState() and GetAsyncKeyState() when focused
+- Low level hooks busted the toggle logic
 
 */
 
@@ -108,6 +108,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode >= 0) {
         // Check for keypress
         if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+
             KBDLLHOOKSTRUCT *pKeyboard = (KBDLLHOOKSTRUCT *)lParam;
             if (pKeyboard->vkCode == VK_RMENU) {
                 // std::cout << "\nRight ALT key was pressed." << std::endl;
