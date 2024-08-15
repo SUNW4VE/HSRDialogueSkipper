@@ -39,7 +39,7 @@ int main() {
     HWND gameHandle = findHandle(gameTitle);
     std::cout << "Found \"" << gameTitle << "\".\n";
     std::cout << "\n - Toggle Skipping: [Y]\n";
-    std::cout << " - Exit Program: [ALT+Q]\n\n";
+    std::cout << " - Exit Program: [Right ALT]\n\n";
 
     // Set the hook
     hHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
