@@ -4,8 +4,7 @@ Issues:
 
 - HSR anticheat blocks GetForegroundWindow() when focused
 - HSR anticheat blocks GetKeyState() and GetAsyncKeyState() when focused
-    - how does autohotkey do it??????
-- Need to add right click close menu in system tray
+- Low level hooks busted the toggle logic
 
 */
 
@@ -15,11 +14,16 @@ Issues:
 #include <chrono>
 #include <thread>
 
+const std::string version = "1.0";
+const LPCSTR gameTitle = "Honkai Star Rail";
+
+HHOOK hHook;
+bool exitKey = false;
+bool keypress = false;
+
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 NOTIFYICONDATAA &loadTrayIcon();
 HWND findHandle(LPCSTR title);
-
-const std::string version = "1.0";
-const LPCSTR gameTitle = "Honkai: Star Rail";
 
 int main() {
 
@@ -27,8 +31,6 @@ int main() {
     NOTIFYICONDATAA nid = loadTrayIcon();
 
     std::cout << "Launched HSRDialogueSkipper ver. " << version << ".\n";
-    std::cout << " - Toggle Skipping: [Y]\n";
-    std::cout << " - Exit Program: [ALT+Q]\n";
 
     // Determine where to click based on monitor resolution
     const int PIXEL_X = GetSystemMetrics(SM_CXSCREEN) * 0.75;
@@ -36,23 +38,31 @@ int main() {
 
     HWND gameHandle = findHandle(gameTitle);
     std::cout << "Found \"" << gameTitle << "\".\n";
+    std::cout << "\n - Toggle Skipping: [Y]\n";
+    std::cout << " - Exit Program: [ALT+Q]\n\n";
 
-    bool exitKey = false;
+    // Set the hook
+    hHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
+    if (hHook == NULL) {
+        std::cout << "Failed to install hook!" << std::endl;
+        return 1;
+    }
+
+    MSG msg;
     bool toggled = false;
     bool wasPressed = false;
     while (exitKey == false) {
 
-        if ((GetKeyState(VK_MENU) & 0x8000) 
-                && (GetKeyState('Q') & 0x8000)) {
-                    exitKey = true;
-                    break;
-                }
+        // flag manipulation
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
 
         if (GetForegroundWindow() == gameHandle) {
             
-            std::cout << "Focused. "; // debug
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (GetKeyState('Y') & 0x8000) {
+            if (keypress) {
                 
                 if (!wasPressed) {
 
@@ -63,8 +73,10 @@ int main() {
                 }
             }
             else { 
+
                 wasPressed = false;
                 std::this_thread::sleep_for(std::chrono::milliseconds(30));
+
             }
 
             if (toggled) {
@@ -76,22 +88,45 @@ int main() {
             }
 
         }
+        else {
 
+            toggled = false;
+            wasPressed = false;
+
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        toggled = false;
-        wasPressed = false;
     }
 
     std::cout << "\nExiting HSRDialogueSkipper.\n";
     Shell_NotifyIcon(NIM_DELETE, &nid);
+    UnhookWindowsHookEx(hHook);
     return 0;
+}
+
+
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode >= 0) {
+        // Check for keypress
+        if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+            KBDLLHOOKSTRUCT *pKeyboard = (KBDLLHOOKSTRUCT *)lParam;
+            if (pKeyboard->vkCode == VK_RMENU) {
+                // std::cout << "\nRight ALT key was pressed." << std::endl;
+                exitKey = true;
+            }
+            if (pKeyboard->vkCode == 0x59) {
+                std::cout << "\nY key was pressed." << std::endl;
+                keypress = true;
+            }
+        }
+    }
+    // Pass hook data to next hook procedure
+    return CallNextHookEx(hHook, nCode, wParam, lParam);
 }
 
 
 NOTIFYICONDATAA &loadTrayIcon() {
 
-    // load system tray icon
-    // how to make a right-click context menu for exiting the program?
+    // Don't know how to make a right-click context menu for exiting the program
     static NOTIFYICONDATAA nid = {};
     AllocConsole();
     HWND dsHandle = FindWindowA("ConsoleWindowClass", NULL);
@@ -113,7 +148,7 @@ HWND findHandle(LPCSTR title) {
 
     // find HSR window handle
     HWND gameHandle = NULL;
-    std::cout << "\nFinding \"" << gameTitle << "\":\n";
+    std::cout << "Finding \"" << gameTitle << "\":\n";
     while (!gameHandle) {
 		gameHandle = FindWindowA(0, title);
 		Sleep(500);
