@@ -5,6 +5,7 @@ Issues:
 - HSR anticheat blocks GetForegroundWindow() when focused
 - HSR anticheat blocks GetKeyState() and GetAsyncKeyState() when focused
 - Hook implementation busted the toggle logic
+- how does AHK do it?????
 
 */
 
